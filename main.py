@@ -1,4 +1,4 @@
-# main.py
+#!/usr/bin/env python3
 
 import argparse
 from evaluations.boolq_eval import evaluate_boolq
@@ -16,13 +16,16 @@ def main():
     # Set up argument parsing
     parser = argparse.ArgumentParser(description="Model Evaluation Suite")
     parser.add_argument('--model', type=str, required=True, help='Model name to evaluate')
+    parser.add_argument('--checker', type=str, default='bespoke-minicheck:latest', help='Name of the checker model')
     parser.add_argument('--evaluations', nargs='+', default=['boolq', 'hellaswag', 'winogrande', 'rte', 'piqa', 'commonsenseqa', 'multirc', 'arc', 'cb'], help='List of evaluations to run')
     parser.add_argument('--sample-size', type=int, default=None, help='Number of samples to evaluate from each dataset')
     parser.add_argument('--custom-client-host', type=str, default=None, help='Host for custom client (if not specified, uses standard module)')
+    parser.add_argument('--trust_remote_code', type=bool, default=False, help='Host for custom client (if not specified, uses standard module)')
     args = parser.parse_args()
 
     # Load the model
     model = ModelWrapper(args.model, custom_client_host=args.custom_client_host)
+    checker = ModelWrapper(args.checker, custom_client_host=args.custom_client_host, options={'num_ctx': 12000, 'temperature': 0, 'timeout': 0})
 
     # Dictionary mapping evaluation names to functions
     evaluation_functions = {
@@ -41,7 +44,7 @@ def main():
     for eval_name in args.evaluations:
         if eval_name in evaluation_functions:
             print(f"Starting evaluation: {eval_name}")
-            accuracy = evaluation_functions[eval_name](model, sample_size=args.sample_size)
+            accuracy = evaluation_functions[eval_name](model, checker, sample_size=args.sample_size, trust_remote_code=args.trust_remote_code)
             print(f"{eval_name} Accuracy: {accuracy:.2f}%\n")
         else:
             print(f"Evaluation {eval_name} not found.")

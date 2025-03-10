@@ -4,7 +4,7 @@ from datasets import load_dataset
 from tqdm import tqdm
 import re
 
-def evaluate_multirc(model, sample_size=None):
+def evaluate_multirc(model, checker, sample_size=None, trust_remote_code=False):
     """
     Evaluate the model on the MultiRC dataset.
 
@@ -12,7 +12,7 @@ def evaluate_multirc(model, sample_size=None):
         model: The model object with a `chat` method.
         sample_size: Number of samples to use for evaluation (default is the entire dataset).
     """
-    multirc_dataset = load_dataset("super_glue", "multirc", split="validation")
+    multirc_dataset = load_dataset("super_glue", "multirc", split="validation", trust_remote_code=trust_remote_code)
 
     # If sample_size is provided, select a subset of the dataset
     if sample_size:

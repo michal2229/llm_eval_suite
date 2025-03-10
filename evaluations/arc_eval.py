@@ -4,7 +4,10 @@ from datasets import load_dataset
 from tqdm import tqdm
 import re
 
-def evaluate_arc(model, sample_size=None):
+import evaluations.utils as u
+
+
+def evaluate_arc(model, checker, sample_size=None, trust_remote_code=False):
     """
     Evaluate the model on the AI2 ARC dataset.
 
@@ -12,7 +15,7 @@ def evaluate_arc(model, sample_size=None):
         model: The model object with a `chat` method.
         sample_size: Number of samples to use for evaluation (default is entire dataset).
     """
-    arc_dataset = load_dataset("ai2_arc", "ARC-Challenge", split="validation")
+    arc_dataset = load_dataset("ai2_arc", "ARC-Challenge", split="validation", trust_remote_code=trust_remote_code)
 
     # If sample_size is provided, select a subset of the dataset
     if sample_size:
@@ -31,11 +34,12 @@ def evaluate_arc(model, sample_size=None):
 
         prompt = create_arc_prompt(question, choices)
 
+
         try:
             response = model.chat(prompt)
-            predicted_answer = extract_arc_answer(response)
+            response = u.sanitize_model_output(response)
 
-            if predicted_answer == correct_answer:
+            if u.is_answer_correct(checker, prompt, correct_answer, response):
                 correct += 1
             total += 1
 
@@ -50,18 +54,12 @@ def evaluate_arc(model, sample_size=None):
 def create_arc_prompt(question, choices):
     choices_str = '\n'.join([f"{label}. {text}" for label, text in choices.items()])
     prompt = f"""
-Question: {question}
+Question: 
+{question}
+
 Choices:
 {choices_str}
-Please select the correct choice (A, B, C, D, or E).
 
-Answer:""".strip()
+Select the correct answer.
+""".strip()
     return prompt
-
-def extract_arc_answer(response):
-    response = response.strip().upper()
-    match = re.search(r'\b([ABCDE])\b', response)
-    if match:
-        return match.group(1)
-    else:
-        return None

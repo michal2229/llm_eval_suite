@@ -4,7 +4,7 @@ from datasets import load_dataset
 from tqdm import tqdm
 import re
 
-def evaluate_boolq(model, sample_size=None):
+def evaluate_boolq(model, checker, sample_size=None, trust_remote_code=False):
     """
     Evaluate the model on the BoolQ dataset.
 
@@ -13,7 +13,7 @@ def evaluate_boolq(model, sample_size=None):
         sample_size: Number of samples to use for evaluation (default is entire dataset).
     """
     # Load the BoolQ dataset
-    boolq_dataset = load_dataset("super_glue", "boolq", split="validation")
+    boolq_dataset = load_dataset("super_glue", "boolq", split="validation", trust_remote_code=trust_remote_code)
 
     # If sample_size is provided, select a subset of the dataset
     if sample_size:

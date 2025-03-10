@@ -4,7 +4,7 @@ from datasets import load_dataset
 from tqdm import tqdm
 import re
 
-def evaluate_commonsenseqa(model, sample_size=None):
+def evaluate_commonsenseqa(model, checker, sample_size=None, trust_remote_code=False):
     """
     Evaluate the model on the CommonSenseQA dataset.
 
@@ -12,7 +12,7 @@ def evaluate_commonsenseqa(model, sample_size=None):
         model: The model object with a `chat` method.
         sample_size: Number of samples to use for evaluation (default is entire dataset).
     """
-    commonsenseqa_dataset = load_dataset("commonsense_qa", split="validation")
+    commonsenseqa_dataset = load_dataset("commonsense_qa", split="validation", trust_remote_code=trust_remote_code)
 
     # If sample_size is provided, select a subset of the dataset
     if sample_size:

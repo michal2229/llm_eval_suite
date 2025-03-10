@@ -3,7 +3,7 @@
 from datasets import load_dataset
 from tqdm import tqdm
 
-def evaluate_piqa(model, sample_size=None):
+def evaluate_piqa(model, checker, sample_size=None, trust_remote_code=False):
     """
     Evaluate the model on the PIQA dataset.
 
@@ -11,7 +11,7 @@ def evaluate_piqa(model, sample_size=None):
         model: The model object with a `chat` method.
         sample_size: Number of samples to use for evaluation (default is entire dataset).
     """
-    piqa_dataset = load_dataset("piqa", split="validation")
+    piqa_dataset = load_dataset("piqa", split="validation", trust_remote_code=trust_remote_code)
 
     # If sample_size is provided, select a subset of the dataset
     if sample_size:

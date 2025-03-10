@@ -3,8 +3,9 @@
 import ollama
 
 class ModelWrapper:
-    def __init__(self, model_name, custom_client_host=None):
+    def __init__(self, model_name, custom_client_host=None, options=None):
         self.model_name = model_name
+        self.options = options
         if custom_client_host:
             # Use custom client
             self.client = ollama.Client(host=custom_client_host)
@@ -22,9 +23,9 @@ class ModelWrapper:
             },
         ]
         if self.use_custom_client:
-            response = self.client.chat(model=self.model_name, messages=messages)
+            response = self.client.chat(model=self.model_name, messages=messages, options=self.options)
             content = response['message']['content']
         else:
-            response = ollama.chat(model=self.model_name, messages=messages)
+            response = ollama.chat(model=self.model_name, messages=messages, options=self.options)
             content = response['message']['content']
         return content
