@@ -26,10 +26,13 @@ def is_answer_correct(checker, question, expected_answer, provided_answer):
 
     checker_prompt = f'''
 # Document:
+{question}
+
+Correct answer:
 {provided_answer}
 
 # Claim: 
-Answer {expected_answer} is correct.
+Correct answer is {expected_answer}
 '''.strip()
 
     evaluation = checker.chat(checker_prompt)

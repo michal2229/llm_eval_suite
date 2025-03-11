@@ -30,7 +30,7 @@ def evaluate_arc(model, checker, sample_size=None, trust_remote_code=False):
         choices_texts = example['choices']['text']    # List of choice texts
         choices = dict(zip(choices_labels, choices_texts))  # Map labels to texts
 
-        correct_answer = example['answerKey']  # 'A', 'B', 'C', 'D', or 'E'
+        correct_answer = example['answerKey']  # 'A', 'B', 'C', 'D'
 
         prompt = create_arc_prompt(question, choices)
 
@@ -39,7 +39,7 @@ def evaluate_arc(model, checker, sample_size=None, trust_remote_code=False):
             response = model.chat(prompt)
             response = u.sanitize_model_output(response)
 
-            if u.is_answer_correct(checker, prompt, correct_answer, response):
+            if u.is_answer_correct(checker, prompt, f'{correct_answer}. {choices[correct_answer]}', response):
                 correct += 1
             total += 1
 
@@ -57,9 +57,9 @@ def create_arc_prompt(question, choices):
 Question: 
 {question}
 
-Choices:
+Answers:
 {choices_str}
 
-Select the correct answer.
+Only one answer is correct. Choose the correct answer (respond explicitly with one of the options: {', '.join(choices.keys())}).
 """.strip()
     return prompt
